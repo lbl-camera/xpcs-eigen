@@ -71,7 +71,8 @@ SparseData::SparseData(int rows, int initialSize)
 
 SparseData::~SparseData()
 {
-  //TODO
+    delete [] m_data;
+    delete [] valid_pixels_;
 }
 
 Row* SparseData::Pixel(int index)

@@ -61,34 +61,33 @@ namespace xpcs {
 namespace filter {
 
 
-SparseFilter::SparseFilter() {
-  Configuration *conf = Configuration::instance();
+SparseFilter::SparseFilter(const Configuration & conf) {
 
-  pixel_mask_ = conf->getPixelMask();
-  sbin_mask_ = conf->getSbinMask();
-  flatfield_ = conf->getFlatField();
-  eff_ = conf->getDetEfficiency();
-  det_adhu_ = conf->getDetAdhuPhot();
-  preset_ =  conf->getDetPreset();
-  frames_todo_ = conf->getFrameTodoCount();
-  frame_width_ = conf->getFrameWidth();
-  frame_height_ = conf->getFrameHeight();
-  normFactor_ = conf->getNormFactor();
-  static_window_ = conf->getStaticWindowSize();
-  total_static_partns_ = conf->getTotalStaticPartitions();
-  swindow_ = conf->getStaticWindowSize();
-  stride_size_ = conf->FrameStride();
-  average_size_ = conf->FrameAverage();
-  normalizedByFramesum_ = conf->IsNormalizedByFramesum();
+  pixel_mask_ = conf.getPixelMask();
+  sbin_mask_ = conf.getSbinMask();
+  flatfield_ = conf.getFlatField();
+  eff_ = conf.getDetEfficiency();
+  det_adhu_ = conf.getDetAdhuPhot();
+  preset_ =  conf.getDetPreset();
+  frames_todo_ = conf.getFrameTodoCount();
+  frame_width_ = conf.getFrameWidth();
+  frame_height_ = conf.getFrameHeight();
+  normFactor_ = conf.getNormFactor();
+  static_window_ = conf.getStaticWindowSize();
+  total_static_partns_ = conf.getTotalStaticPartitions();
+  swindow_ = conf.getStaticWindowSize();
+  stride_size_ = conf.FrameStride();
+  average_size_ = conf.FrameAverage();
+  normalizedByFramesum_ = conf.IsNormalizedByFramesum();
 
   int partitions = (int) ceil((double)frames_todo_/swindow_);
   partial_partitions_mean_ = new float[total_static_partns_ * partitions];
   partitions_mean_ = new float[total_static_partns_];
   pixels_sum_ = new float[frame_width_ * frame_height_];
-  frames_sum_ =  new float[2 * conf->getFrameTodoCount()];
+  frames_sum_ =  new float[2 * conf.getFrameTodoCount()];
   pixels_value_ = new float[frame_width_ * frame_height_];
   sparse_map_ = new short[frame_width_ * frame_height_];
-  real_frames_todo_ = conf->getRealFrameTodoCount();
+  real_frames_todo_ = conf.getRealFrameTodoCount();
   timestamp_clock_ = new double[2 * real_frames_todo_];
   timestamp_ticks_ = new double[2 * real_frames_todo_];
 
@@ -110,7 +109,14 @@ SparseFilter::SparseFilter() {
 }
 
 SparseFilter::~SparseFilter() {
-
+  if (partial_partitions_mean_) delete [] partial_partitions_mean_;
+  if (partitions_mean_)         delete [] partitions_mean_;
+  if (pixels_sum_)              delete [] pixels_sum_;
+  if (frames_sum_)              delete [] frames_sum_;
+  if (pixels_value_)            delete [] pixels_value_;
+  if (sparse_map_)              delete [] sparse_map_;
+  if (timestamp_clock_)         delete [] timestamp_clock_;
+  if (timestamp_ticks_)         delete [] timestamp_ticks_;
 }
 
 void SparseFilter::Apply(xpcs::io::ImmBlock* blk) {

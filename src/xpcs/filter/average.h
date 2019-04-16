@@ -47,6 +47,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #ifndef XPCS_AVERAGE_H
 #define XPCS_AVERAGE_H
 
+#include "xpcs/configuration.h"
+
 namespace xpcs {
 
 namespace data_structure {
@@ -63,9 +65,9 @@ namespace filter {
 class Average {
 
 public:
-  Average();
+  Average(const Configuration &);
 
-  ~Average();
+  ~Average(); 
 
   void Apply(struct xpcs::io::ImmBlock* data);
 

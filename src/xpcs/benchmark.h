@@ -48,7 +48,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #define BENCHMARK_
 
 #include "spdlog/spdlog.h"
-
 namespace spd = spdlog; 
 
 namespace xpcs {

@@ -63,9 +63,7 @@ namespace filter {
 class Stride {
 
 public:
-  Stride();
-
-  ~Stride();
+  Stride(int ss) : stride_size_(ss) {};
 
   void Apply(struct xpcs::io::ImmBlock* data);
 

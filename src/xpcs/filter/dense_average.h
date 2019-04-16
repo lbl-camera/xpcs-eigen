@@ -47,6 +47,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #ifndef XPCS_DENSE_AVERAGE_H
 #define XPCS_DENSE_AVERAGE_H
 
+#include "xpcs/configuration.h"
+
 namespace xpcs {
 
 namespace data_structure {
@@ -63,7 +65,7 @@ namespace filter {
 class DenseAverage {
 
 public:
-  DenseAverage();
+  DenseAverage(const Configuration &);
 
   ~DenseAverage();
 

@@ -56,7 +56,8 @@ POSSIBILITY OF SUCH DAMAGE.
 namespace xpcs {
 namespace io {
 
-UfxcReader::UfxcReader(const std::string& filename) {
+UfxcReader::UfxcReader(const std::string& filename,
+    const Configuration & conf) {
     file_ = fopen(filename.c_str(), "rb");
     if (file_ == NULL) return ; //TODO handle error
 
@@ -100,9 +101,8 @@ UfxcReader::UfxcReader(const std::string& filename) {
    
     last_frame_index = 0;
 
-    xpcs::Configuration *conf = xpcs::Configuration::instance();
-    frame_width_ = conf->getFrameWidth();
-    frame_height_ = conf->getFrameHeight();
+    frame_width_ = conf.getFrameWidth();
+    frame_height_ = conf.getFrameHeight();
 
     printf("frame widht %d, frame height %d\n", frame_width_, frame_height_);
 }

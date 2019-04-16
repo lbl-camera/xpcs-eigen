@@ -59,16 +59,6 @@ POSSIBILITY OF SUCH DAMAGE.
 namespace xpcs {
 namespace filter {
 
-
-Stride::Stride() {
-  Configuration *conf = Configuration::instance();
-  stride_size_ = conf->FrameStride();
-}
-
-Stride::~Stride() {
-
-}
-
 void Stride::Apply(struct xpcs::io::ImmBlock* blk) {
   int **indx = blk->index;
   float **val = blk->value;

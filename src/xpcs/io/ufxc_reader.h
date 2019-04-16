@@ -56,8 +56,10 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "spdlog/spdlog.h"
 
+#include <xpcs/configuration.h>
+
+#include <spdlog/spdlog.h>
 
 namespace xpcs {
 namespace io {
@@ -65,7 +67,7 @@ namespace io {
 class UfxcReader : public Reader {
 
 public:
-  UfxcReader(const std::string& filename);
+  UfxcReader(const std::string&, const Configuration &);
    
   ~UfxcReader();
 

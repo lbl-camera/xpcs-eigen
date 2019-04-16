@@ -78,17 +78,16 @@ using Eigen::Ref;
 using Eigen::Map;
 using Eigen::OuterStride;
 
-void Corr::multiTau(const MatrixXf &pixelData, int pix) {
-    Configuration* conf = Configuration::instance();
+void Corr::multiTau(const MatrixXf &pixelData, const Configuration &conf, int pix) {
 
     int frames = pixelData.cols();
-    int maxLevel = calculateLevelMax(frames, conf->DelaysPerLevel());
+    int maxLevel = calculateLevelMax(frames, conf.DelaysPerLevel());
 
-    int* dqmap = conf->getDQMap();
-    int* sqmap = conf->getSQMap();
+    int* dqmap = conf.getDQMap();
+    int* sqmap = conf.getSQMap();
 
-    int w = conf->getFrameWidth();
-    int h = conf->getFrameHeight();
+    int w = conf.getFrameWidth();
+    int h = conf.getFrameHeight();
 
     int tau = 1;
     int level = 0;
@@ -99,7 +98,7 @@ void Corr::multiTau(const MatrixXf &pixelData, int pix) {
         int tauIncrement = (int) pow(2.0, level);
         
         //TODO smooth intensities
-        int dplCount = Corr::calculateDelayCount(conf->DelaysPerLevel(), level);
+        int dplCount = Corr::calculateDelayCount(conf.DelaysPerLevel(), level);
 
         for (int delayIndex = 0; delayIndex < dplCount; delayIndex++) {
 
@@ -122,19 +121,18 @@ void Corr::multiTau(const MatrixXf &pixelData, int pix) {
 void Corr::multiTauVec(Ref<MatrixXf> pixelData,
                        Ref<MatrixXf> G2, 
                        Ref<MatrixXf> IP,
-                       Ref<MatrixXf> IF) {
-    
-    Configuration* conf = Configuration::instance();
+                       Ref<MatrixXf> IF,
+                       const Configuration & conf) {
     
     int frames = pixelData.cols();
     int pixels = pixelData.rows();
 
-    int maxLevel = calculateLevelMax(frames, conf->DelaysPerLevel());
+    int maxLevel = calculateLevelMax(frames, conf.DelaysPerLevel());
 
-    int w = conf->getFrameWidth();
-    int h = conf->getFrameHeight();
+    int w = conf.getFrameWidth();
+    int h = conf.getFrameHeight();
 
-    vector<tuple<int,int> > delays_per_level = Corr::delaysPerLevel(frames, conf->DelaysPerLevel(), maxLevel);
+    vector<tuple<int,int> > delays_per_level = Corr::delaysPerLevel(frames, conf.DelaysPerLevel(), maxLevel);
 
     //TODO asserts for G2, IP and IF sizes
     int i = 0;
@@ -186,20 +184,20 @@ void Corr::multiTauVec(Ref<MatrixXf> pixelData,
 void Corr::multiTauVec(SparseRMatF& pixelData,
                        Ref<MatrixXf> G2, 
                        Ref<MatrixXf> IP,
-                       Ref<MatrixXf> IF)
+                       Ref<MatrixXf> IF,
+                       const Configuration & conf
+                      )
 {
-    Configuration* conf = Configuration::instance();
-    
     int frames = pixelData.cols();
     int pixels = pixelData.rows();
 
-    int maxLevel = calculateLevelMax(frames, conf->DelaysPerLevel());
+    int maxLevel = calculateLevelMax(frames, conf.DelaysPerLevel());
 
-    int w = conf->getFrameWidth();
-    int h = conf->getFrameHeight();
-    int fcount = conf->getFrameTodoCount();
+    int w = conf.getFrameWidth();
+    int h = conf.getFrameHeight();
+    int fcount = conf.getFrameTodoCount();
 
-    vector<tuple<int,int> > delays_per_level = delaysPerLevel(frames, conf->DelaysPerLevel(), maxLevel);
+    vector<tuple<int,int> > delays_per_level = delaysPerLevel(frames, conf.DelaysPerLevel(), maxLevel);
 
     // SparseMatrix<float, RowMajor> c0, c1;
 
@@ -307,19 +305,18 @@ void Corr::multiTauVec(SparseRMatF& pixelData,
 
 }
 
-void Corr::multiTau2(data_structure::SparseData* data, float* G2s, float* IPs, float* IFs)
-{
-    Configuration* conf = Configuration::instance();
-    int w = conf->getFrameWidth();
-    int h = conf->getFrameHeight();
-    int frames = conf->getFrameTodoCount();
+void Corr::multiTau2(data_structure::SparseData* data, const Configuration & conf, 
+                     float* G2s, float* IPs, float* IFs) {
+    int w = conf.getFrameWidth();
+    int h = conf.getFrameHeight();
+    int frames = conf.getFrameTodoCount();
     int pixels = w * h;
 
-    int maxLevel = calculateLevelMax(frames, conf->DelaysPerLevel());
+    int maxLevel = calculateLevelMax(frames, conf.DelaysPerLevel());
 
     vector<int> validPixels = data->ValidPixels();
 
-    vector<tuple<int,int> > delays_per_level = delaysPerLevel(frames, conf->DelaysPerLevel(), maxLevel);
+    vector<tuple<int,int> > delays_per_level = delaysPerLevel(frames, conf.DelaysPerLevel(), maxLevel);
 
     int pix = 355517;
 
@@ -498,15 +495,14 @@ void Corr::multiTau2(data_structure::SparseData* data, float* G2s, float* IPs, f
     }
 }
 
-void Corr::twotime(data_structure::SparseData *data)
-{
-  Configuration* conf = Configuration::instance();
-  int frames = conf->getFrameTodoCount();
-  int wsize = conf->Two2OneWindowSize();
-  vector<int> qphi_bins_to_process = conf->TwoTimeQMask();
+void Corr::twotime(data_structure::SparseData *data, const Configuration & conf) {
+
+  int frames = conf.getFrameTodoCount();
+  int wsize = conf.Two2OneWindowSize();
+  vector<int> qphi_bins_to_process = conf.TwoTimeQMask();
   std::map<int, vector<int>> qbin_to_pixels;
 
-  std::map<int, std::map<int, vector<int>> > qbins = conf->getBinMaps();
+  std::map<int, std::map<int, vector<int>> > qbins = conf.getBinMaps();
 
   // 1. Go over each qbin to sbin mapping
   for (map<int, map<int, vector<int>> >::const_iterator it = qbins.begin(); 
@@ -658,10 +654,10 @@ void Corr::twotime(data_structure::SparseData *data)
     char buffer[100];
     sprintf(buffer, "g2_%05d", qbin);
     std::string g2_name(buffer);
-    std::string path = conf->OutputPath() + "/C2T_all/";
+    std::string path = conf.OutputPath() + "/C2T_all/";
 
 
-    xpcs::H5Result::write2DData(conf->getFilename(), 
+    xpcs::H5Result::write2DData(conf.getFilename(), 
                         path.c_str(), 
                         g2_name.c_str(),
                         frames, 
@@ -687,15 +683,15 @@ void Corr::twotime(data_structure::SparseData *data)
     }
   }
 
-  xpcs::H5Result::write2DData(conf->getFilename(), 
-                        conf->OutputPath(), 
+  xpcs::H5Result::write2DData(conf.getFilename(), 
+                        conf.OutputPath(), 
                         "g2full", 
                         frames, 
                         qbin_to_pixels.size(), 
                         g2full_result);  
 
-  xpcs::H5Result::write3DData(conf->getFilename(), 
-                        conf->OutputPath(), 
+  xpcs::H5Result::write3DData(conf.getFilename(), 
+                        conf.OutputPath(), 
                         "g2partials", 
                         wsize, 
                         total_partials,
@@ -703,8 +699,8 @@ void Corr::twotime(data_structure::SparseData *data)
                         g2partial_result);  
 
 
-  xpcs::H5Result::write2DData(conf->getFilename(), 
-                        conf->OutputPath(), 
+  xpcs::H5Result::write2DData(conf.getFilename(), 
+                        conf.OutputPath(), 
                         "sg", 
                         qbin_to_pixels.size(), 
                         frames, 
@@ -713,18 +709,19 @@ void Corr::twotime(data_structure::SparseData *data)
 
 //TODO: Refactor this function and possibly break into sub function for the unit-tests. 
 void Corr::normalizeG2s(Eigen::Ref<Eigen::MatrixXf> G2,
-                   Eigen::Ref<Eigen::MatrixXf> IP, 
-                   Eigen::Ref<Eigen::MatrixXf> IF)
+                        Eigen::Ref<Eigen::MatrixXf> IP, 
+                        Eigen::Ref<Eigen::MatrixXf> IF,
+                        const Configuration & conf
+                       )
 {
 
-    Configuration* conf = Configuration::instance();
-    int w = conf->getFrameWidth();
-    int h = conf->getFrameHeight();
+    int w = conf.getFrameWidth();
+    int h = conf.getFrameHeight();
 
-    std::map<int, std::map<int, vector<int>> > qbins = conf->getBinMaps();
+    std::map<int, std::map<int, vector<int>> > qbins = conf.getBinMaps();
 
-    int totalStaticPartns = conf->getTotalStaticPartitions();
-    int totalDynamicPartns = conf->getTotalDynamicPartitions();
+    int totalStaticPartns = conf.getTotalStaticPartitions();
+    int totalDynamicPartns = conf.getTotalDynamicPartitions();
 
     // Final result out of this function. 
     MatrixXf g2(qbins.size(), G2.cols());
@@ -875,8 +872,8 @@ void Corr::normalizeG2s(Eigen::Ref<Eigen::MatrixXf> G2,
         stdError.row(q - 1).array() = samples.array().sqrt() * stdNorm.array().sqrt();
     }
 
-    H5Result::write2DData(conf->getFilename(), conf->OutputPath(), "norm-0-g2", g2);
-    H5Result::write2DData(conf->getFilename(), conf->OutputPath(), "norm-0-stderr", stdError);
+    H5Result::write2DData(conf.getFilename(), conf.OutputPath(), "norm-0-g2", g2);
+    H5Result::write2DData(conf.getFilename(), conf.OutputPath(), "norm-0-stderr", stdError);
 
 }
 

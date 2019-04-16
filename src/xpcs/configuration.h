@@ -51,7 +51,15 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <map>
 #include <vector>
 
-#include "hdf5.h"
+#if (HAVE_HDF5)
+#include <hdf5.h>
+#endif
+
+#if (HAVE_BOOST_PYTHON)
+#include <boost/python.hpp>
+#include <boost/python/dict.hpp>
+#endif
+
 #include "benchmark.h"
 
 namespace xpcs  {
@@ -59,73 +67,79 @@ namespace xpcs  {
 class Configuration  {
 
 public:    
-  static Configuration* instance();
+  Configuration();
 
   ~Configuration();
 
-  int* getDQMap();
-  int* getSQMap();
-  int *PixelsPerStaticBin();
+  int* getDQMap() const { return dqmap; }
+  int* getSQMap() const { return sqmap; }
+  int *PixelsPerStaticBin() const { return pixels_per_bin; }
 
-  int getFrameWidth();
-  int getFrameHeight();
+  int getFrameWidth() const { return xdim; }
+  int getFrameHeight() const { return ydim; }
 
   // Starting index of frames that we need to process. 
-  int getFrameStartTodo();
-  int getFrameEndTodo();
-  int getFrameStart();
-  int getFrameEnd();
-  int getFrameTodoCount();
+  int getFrameStartTodo() const { return frameStartTodo - 1; }
+  int getFrameEndTodo() const { return frameEndTodo - 1; }
+  int getFrameStart() const { return frameStart - 1; }
+  int getFrameEnd() const { return frameEnd - 1; }
+  int getFrameTodoCount() const;
+
   // Total number of frames without any stride or average. 
-  int getRealFrameTodoCount();
-  int getFrameCount();
-  int getDarkFrameStart();
-  int getDarkFrameEnd();
-  int getDarkFrames();
+  int getRealFrameTodoCount() const { return frameEndTodo - frameStartTodo + 1; }
+  int getFrameCount() const { return frameEnd - frameStart + 1; }
+  int getDarkFrameStart() const { return darkFrameStart; }
+  int getDarkFrameEnd() const { return darkFrameEnd; }
+  int getDarkFrames() const { return darkFrames; }
+  float getDarkThreshold() const { return darkThreshold; }
+  float getDarkSigma() const { return darkSigma; }
 
-  void init(const std::string &path, const std::string &entry);
+  std::map<int, std::map<int, std::vector<int>> > getBinMaps() const { return m_mapping; }
 
-  std::map<int, std::map<int, std::vector<int>> > getBinMaps();
+  int getTotalStaticPartitions() const { return m_totalStaticPartitions; }
+  int getTotalDynamicPartitions() const { return m_totalDynamicPartitions; }
+  int getStaticWindowSize() const { return m_staticWindow; }
+  int DelaysPerLevel() const { return delays_per_level_; }
 
-  int getTotalStaticPartitions();
-  int getTotalDynamicPartitions();
-  int getStaticWindowSize();
-  int DelaysPerLevel();
+  int FrameStride() const { return frame_stride_; }
+  int FrameAverage() const { return frame_average_; }
 
-  int FrameStride();
-  int FrameAverage();
-
-  int Two2OneWindowSize();
+  int Two2OneWindowSize() const { return two2one_window_size_; }
   
-  std::string getFilename();
-  std::string& getIMMFilePath();
-  std::string& OutputPath();
-  void setIMMFilePath(std::string& str);
+  std::string getFilename() const { return m_filename; }
+  std::string getIMMFilePath() const { return m_immFile; }
+  std::string OutputPath() const { return output_path_; }
+  void setIMMFilePath(std::string& path) { m_immFile = path; }
 
-  short* getPixelMask();
-  int* getSbinMask();
-  std::vector<int>& TwoTimeQMask();
+  short* getPixelMask() const { return m_validPixelMask; }
+  int* getSbinMask() const { return m_sbin; }
+  const std::vector<int>& TwoTimeQMask() const { return qphi_bin_to_process_; }
 
-  float getDetDpixX();
-  float getDetDpixY();
-  float getDetAdhuPhot();
-  float getDetPreset();
-  float getDetEfficiency();
-  float getNormFactor();
+  float getDetDpixX() const { return m_detDpixX; }
+  float getDetDpixY() const { return m_detDpixY; }
+  float getDetAdhuPhot() const { return m_detAdhupPhot; }
+  float getDetPreset() const { return m_detPreset; }
+  float getDetEfficiency() const { return m_detEfficiency; }
+  float getNormFactor() const { return m_normFactor; }
 
-  float getDarkThreshold();
-  float getDarkSigma();
 
-  bool getIsFlatFieldEnabled();
-  double* getFlatField();
+  bool getIsFlatFieldEnabled() const { return flatfieldEnabled; }
+  double* getFlatField() const { return flatfield; }
 
-  bool getIsCompressionEnabled();
-  bool IsNormalizedByFramesum();
-  bool IsTwoTime();
+  bool getIsCompressionEnabled() const { return compression; }
+  bool IsNormalizedByFramesum() const { return normalizedByFramesum; }
+  bool IsTwoTime() const { return twotime_; }
+
+#if (HAVE_HDF5)
+  void from_hdf5(const std::string &, const std::string &);
+#endif
+
+#if (HAVE_BOOST_PYTHON)
+  void from_pydict(boost::python::dict &);
+#endif
 
 private:
 
-  Configuration();
 
   std::string getString(const std::string &path);
 
@@ -186,7 +200,9 @@ private:
   float darkThreshold;
   float darkSigma;
 
+#if HAVE_HDF5
   hid_t file_id;
+#endif // HAVE_HDF5
 
   // Flags for checkig if certain fields are enabled. 
   bool compression;
@@ -200,7 +216,6 @@ private:
 
   std::vector<int> qphi_bin_to_process_;
 
-  static Configuration *s_instance;
 };
 
 } // namespace xpcs

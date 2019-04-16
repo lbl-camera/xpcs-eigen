@@ -60,9 +60,9 @@ Eigen::VectorXf Funcs::pixelSum(Eigen::Ref<Eigen::MatrixXf> pixelData) {
     return pixelData.rowwise().sum();
 }
 
-Eigen::VectorXf Funcs::pixelSum(SparseMatF pixelData) {
-    Configuration *conf = Configuration::instance();
-    int fcount = conf->getFrameTodoCount();
+Eigen::VectorXf Funcs::pixelSum(SparseMatF pixelData, const Configuration & conf) {
+
+    int fcount = conf.getFrameTodoCount();
 
     Eigen::VectorXf psum(pixelData.rows());
     psum.setZero(pixelData.rows());
@@ -74,11 +74,11 @@ Eigen::VectorXf Funcs::pixelSum(SparseMatF pixelData) {
     return psum.array() / fcount;
 } 
 
-Eigen::MatrixXf Funcs::pixelWindowSum(SparseMatF pixelData) {
-    Configuration *conf = Configuration::instance();
-    int fcount = conf->getFrameTodoCount();
-    int swindow = conf->getStaticWindowSize();
-    int totalStaticPartns = conf->getTotalStaticPartitions();
+Eigen::MatrixXf Funcs::pixelWindowSum(SparseMatF pixelData, const Configuration & conf) {
+
+    int fcount = conf.getFrameTodoCount();
+    int swindow = conf.getStaticWindowSize();
+    int totalStaticPartns = conf.getTotalStaticPartitions();
     int partitions = (int) ceil((double)fcount/swindow);
 
     Eigen::MatrixXf pixelSums(pixelData.rows(), partitions+1);
@@ -94,17 +94,17 @@ Eigen::MatrixXf Funcs::pixelWindowSum(SparseMatF pixelData) {
     return pixelSums;
 }
 
-Eigen::MatrixXf Funcs::partitionMean(Eigen::Ref<Eigen::MatrixXf> pixelSum) 
-{
-    Configuration *conf = Configuration::instance();
-    int fcount = conf->getFrameTodoCount();
-    int swindow = conf->getStaticWindowSize();
-    int totalStaticPartns = conf->getTotalStaticPartitions();
+Eigen::MatrixXf Funcs::partitionMean(
+    Eigen::Ref<Eigen::MatrixXf> pixelSum, const Configuration & conf) {
+
+    int fcount = conf.getFrameTodoCount();
+    int swindow = conf.getStaticWindowSize();
+    int totalStaticPartns = conf.getTotalStaticPartitions();
     int partitions = (int) ceil((double)fcount/swindow);
 
-    float normFactor = conf->getNormFactor();
+    float normFactor = conf.getNormFactor();
 
-    map<int, map<int, vector<int>> > qbins = conf->getBinMaps();
+    map<int, map<int, vector<int>> > qbins = conf.getBinMaps();
 
     Eigen::MatrixXf means(totalStaticPartns, partitions+1);
     means.setZero(totalStaticPartns, partitions+1);
@@ -137,30 +137,18 @@ Eigen::MatrixXf Funcs::partitionMean(Eigen::Ref<Eigen::MatrixXf> pixelSum)
     return means;
 }
 
-Eigen::MatrixXf Funcs::frameSum(SparseMatF pixelData) {
-    Configuration *conf = Configuration::instance();
+Eigen::MatrixXf Funcs::frameSum(SparseMatF pixelData, const Configuration & conf) {
+
     int frames = pixelData.cols();
 
     Eigen::MatrixXf fsum(frames, 2);
     for (int i = 0; i < pixelData.cols(); i++) {
         fsum(i) = i + 1;
         fsum(i+frames) = pixelData.col(i).sum()/pixelData.rows();
-        //fsum(i+frames) = pixelData.col(i).sum() / conf->getDetEfficiency() / 
-        //                            conf->getDetAdhuPhot() / conf->getDetPreset();
+        //fsum(i+frames) = pixelData.col(i).sum() / conf.getDetEfficiency() / 
+        //                            conf.getDetAdhuPhot() / conf.getDetPreset();
     }
     return fsum;
-}
-
-/**
- * Compute mask of pixles from the dqmap
- */
-Eigen::MatrixXf Funcs::maskFromDQmap(int* dqmap, int w, int h) {
-    for (int i = 1290; i < 1300; i++) {
-        for (int j = 1335; j < 1340; j++) {
-            printf (" %d ", dqmap[w*i + j]);
-        }
-        printf("\n");
-    }
 }
 
 }

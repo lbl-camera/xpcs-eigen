@@ -47,6 +47,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #ifndef XPCS_DENSE_FILTER_H
 #define XPCS_DENSE_FILTER_H
 
+#include "xpcs/configuration.h"
 #include "filter.h"
 
 namespace xpcs {
@@ -65,7 +66,8 @@ namespace filter {
 class DenseFilter : public Filter  {
 
 public:
-  DenseFilter(xpcs::data_structure::DarkImage* dark_image);
+  DenseFilter(xpcs::data_structure::DarkImage *,
+              const Configuration &);
 
   ~DenseFilter();
 

@@ -49,6 +49,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Eigen/Dense"
 #include "Eigen/SparseCore"
+#include "configuration.h"
 
 typedef Eigen::SparseMatrix<float> SparseMatF;
 
@@ -57,12 +58,11 @@ namespace xpcs {
 class Funcs {
 
 public:
-    static Eigen::VectorXf pixelSum(Eigen::Ref<Eigen::MatrixXf> pixels);
-    static Eigen::MatrixXf pixelWindowSum(SparseMatF pixels);
-    static Eigen::VectorXf pixelSum(SparseMatF pixels);
-    static Eigen::MatrixXf partitionMean(Eigen::Ref<Eigen::MatrixXf> pixelSum);
-    static Eigen::MatrixXf frameSum(SparseMatF pixels);
-    static Eigen::MatrixXf maskFromDQmap(int* dqmap, int w, int h);
+    static Eigen::VectorXf pixelSum(Eigen::Ref<Eigen::MatrixXf>);
+    static Eigen::VectorXf pixelSum(SparseMatF, const Configuration &);
+    static Eigen::MatrixXf pixelWindowSum(SparseMatF pixels, const Configuration &);
+    static Eigen::MatrixXf partitionMean(Eigen::Ref<Eigen::MatrixXf>, const Configuration &);
+    static Eigen::MatrixXf frameSum(SparseMatF, const Configuration &);
 };
 
 }

@@ -50,8 +50,10 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <vector>
 #include <tuple>
 
-#include "Eigen/Dense"
-#include "Eigen/SparseCore"
+#include <Eigen/Dense>
+#include <Eigen/SparseCore>
+
+#include "configuration.h"
 
 namespace xpcs  {
 
@@ -77,7 +79,7 @@ public:
    * Non vectorized version of G2 calcuation, here only for reference. 
    * I will delete it from the source soon. 
    */
-  static void multiTau(const Eigen::MatrixXf &pixelData, int pix);
+  static void multiTau(const Eigen::MatrixXf &, const Configuration &, int);
 
   /**
    *  Compute G2,IP, and IF from a Dense matrix. 
@@ -85,7 +87,8 @@ public:
   static void multiTauVec(Eigen::Ref<Eigen::MatrixXf> pixelData, 
                           Eigen::Ref<Eigen::MatrixXf> G2, 
                           Eigen::Ref<Eigen::MatrixXf> IP, 
-                          Eigen::Ref<Eigen::MatrixXf> IF);
+                          Eigen::Ref<Eigen::MatrixXf> IF,
+                          const Configuration &);
 
   /**
    *  Compute G2,IP, and IF from a Sparse Matrix. 
@@ -93,15 +96,19 @@ public:
   static void multiTauVec(SparseRMatF& pixelData,
                           Eigen::Ref<Eigen::MatrixXf> G2, 
                           Eigen::Ref<Eigen::MatrixXf> IP, 
-                          Eigen::Ref<Eigen::MatrixXf> IF);
+                          Eigen::Ref<Eigen::MatrixXf> IF,
+                          const Configuration &);
 
-  static void multiTau2(data_structure::SparseData *data, float* G2, float* IP, float* IF);
+  static void multiTau2(data_structure::SparseData *,
+                        const Configuration &,
+                        float *, float *, float *);
 
-  static void twotime(data_structure::SparseData *data);
+  static void twotime(data_structure::SparseData *, const Configuration &);
 
-  static void normalizeG2s(Eigen::Ref<Eigen::MatrixXf> g2,
-                    Eigen::Ref<Eigen::MatrixXf> IP, 
-                    Eigen::Ref<Eigen::MatrixXf> IF);
+  static void normalizeG2s(Eigen::Ref<Eigen::MatrixXf> ,
+                    Eigen::Ref<Eigen::MatrixXf> , 
+                    Eigen::Ref<Eigen::MatrixXf> ,
+                    const Configuration &);
 
   static double* computeG2Levels(const Eigen::MatrixXf &pixelData, 
                               int pixel,

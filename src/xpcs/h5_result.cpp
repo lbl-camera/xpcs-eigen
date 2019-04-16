@@ -312,7 +312,8 @@ void H5Result::write1DData(const std::string &file,
 
 void H5Result::writePixelSum(const std::string &file, 
                    const std::string &grpname,
-                   Eigen::Ref<Eigen::VectorXf> pixelSum) {
+                   Eigen::Ref<Eigen::VectorXf> pixelSum,
+                   const Configuration & conf) {
 
     hid_t file_id, exchange_grp_id, dataset_id, dataspace_id;
     hsize_t dims[2];
@@ -328,9 +329,8 @@ void H5Result::writePixelSum(const std::string &file,
     //TODO :: Log error if the grp creation fail. 
     dataset_id = H5Dopen2(exchange_grp_id, "pixelSum", H5P_DEFAULT);
 
-    Configuration *conf = Configuration::instance();
-    int w = conf->getFrameWidth();
-    int h = conf->getFrameHeight();
+    int w = conf.getFrameWidth();
+    int h = conf.getFrameHeight();
 
     if (dataset_id < 0) {
 
@@ -352,7 +352,8 @@ void H5Result::writePixelSum(const std::string &file,
 
 void H5Result::writeFrameSum(const std::string &file, 
                    const std::string &grpname,
-                   Eigen::Ref<Eigen::VectorXf> frameSum) {
+                   Eigen::Ref<Eigen::VectorXf> frameSum,
+                   const Configuration & conf) {
 
     hid_t file_id, exchange_grp_id, dataset_id, dataspace_id;
     hsize_t dims[2];
@@ -368,12 +369,10 @@ void H5Result::writeFrameSum(const std::string &file,
     //TODO :: Log error if the grp creation fail. 
     dataset_id = H5Dopen2(exchange_grp_id, "frameSum", H5P_DEFAULT);
 
-    Configuration *conf = Configuration::instance();
-
     if (dataset_id < 0) {
 
         dims[0] = 1;
-        dims[1] = conf->getFrameTodoCount();
+        dims[1] = conf.getFrameTodoCount();
 
         dataspace_id = H5Screate_simple(2, dims, NULL);
         dataset_id = H5Dcreate(exchange_grp_id, "frameSum", H5T_NATIVE_FLOAT, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);

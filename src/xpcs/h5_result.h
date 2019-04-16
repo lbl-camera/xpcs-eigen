@@ -47,8 +47,9 @@ POSSIBILITY OF SUCH DAMAGE.
 #ifndef H5_RESULT_H
 #define H5_RESULT_H
 
-#include "Eigen/Dense"
-#include "Eigen/SparseCore"
+#include <Eigen/Dense>
+#include <Eigen/SparseCore>
+#include "xpcs/configuration.h"
 
 namespace xpcs {
 
@@ -94,13 +95,15 @@ public:
                         int size2,
                         float* data);
 
-    static void writePixelSum(const std::string &file, 
-                              const std::string &grpname,
-                              Eigen::Ref<Eigen::VectorXf> pixelSum);
+    static void writePixelSum(const std::string &, 
+                              const std::string &,
+                              Eigen::Ref<Eigen::VectorXf> ,
+                              const Configuration &);
 
-    static void writeFrameSum(const std::string &file, 
-                              const std::string &grpname,
-                              Eigen::Ref<Eigen::VectorXf> frameSum);
+    static void writeFrameSum(const std::string &, 
+                              const std::string &,
+                              Eigen::Ref<Eigen::VectorXf> ,
+                              const Configuration &);
 };
 
 }

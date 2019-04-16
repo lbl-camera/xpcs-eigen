@@ -48,6 +48,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define XPCS_SPARSE_FILTER_H
 
 #include "filter.h"
+#include "xpcs/configuration.h"
 
 namespace xpcs {
 
@@ -64,7 +65,7 @@ namespace filter {
 class SparseFilter : public Filter  {
 
 public:
-  SparseFilter();
+  SparseFilter(const Configuration &);
 
   ~SparseFilter();
 

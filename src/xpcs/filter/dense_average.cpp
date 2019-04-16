@@ -59,17 +59,14 @@ POSSIBILITY OF SUCH DAMAGE.
 namespace xpcs {
 namespace filter {
 
-DenseAverage::DenseAverage() {
-  Configuration *conf = Configuration::instance();
-  pixels_ = conf->getFrameWidth() * conf->getFrameHeight();
-  average_size_ = conf->FrameAverage();
-  stride_size_ = conf->FrameStride();
+DenseAverage::DenseAverage(const Configuration & conf) {
+  pixels_ = conf.getFrameWidth() * conf.getFrameHeight();
+  average_size_ = conf.FrameAverage();
+  stride_size_ = conf.FrameStride();
   pixels_value_ = new float[pixels_];
 }
 
-DenseAverage::~DenseAverage() {
-
-}
+DenseAverage::~DenseAverage() { if (pixels_value_) delete [] pixels_value_; }
 
 void DenseAverage::Apply(struct xpcs::io::ImmBlock* blk) {
   int **indx = blk->index;
